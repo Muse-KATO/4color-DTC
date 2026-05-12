@@ -21,7 +21,8 @@ The provided C source code allows you to:
 3. Verify the correctness of the result against the Four Color Theorem.
 
 ## Getting Started / 使い方
-(ここに、コンパイル方法や実行コマンドを数行記載すると親切です。例: `gcc main.c -o DTC_Solver`)
+cl /nologo /c /W3 /O2 /Oi /GS- /GL /Gy /Gw 4Cols.c
+link /nologo /FIXED /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /NOCOFFGRPINFO /LARGEADDRESSAWARE 4Cols.obj
 
 ## Documentation / 論文
 For a detailed theoretical background, please refer to the paper:
