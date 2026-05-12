@@ -21,8 +21,8 @@ The provided C source code allows you to:
 3. Verify the correctness of the result against the Four Color Theorem.
 
 ## Getting Started / 使い方
-cl /nologo /c /W3 /O2 /Oi /GS- /GL /Gy /Gw 4Cols.c
-link /nologo /FIXED /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /NOCOFFGRPINFO /LARGEADDRESSAWARE 4Cols.obj
+- cl /nologo /c /W3 /O2 /Oi /GS- /GL /Gy /Gw 4Cols.c
+- link /nologo /FIXED /LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /NOCOFFGRPINFO /LARGEADDRESSAWARE 4Cols.obj
 
 ## Documentation / 論文
 For a detailed theoretical background, please refer to the paper:
