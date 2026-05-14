@@ -131,7 +131,7 @@ static char sc_step = 0;		// 処理ステップ(-1,0～)
 static char sc_phase = -1;		// 処理フェーズ( -1:起動直後 0:ノーマル 1:バッチ中 2:バッチ処理時間 )
 
 const char cc3_col[3][2][2] = { 2,3, 3,2, 3,1, 1,3, 1,2, 2,1 };	// Baseスワップ
-const char cc2_fan[6][2]    = { 1,2, 2,3, 3,1, 2,1, 3,2, 1,3 };	// Base三つ巴
+const char cc2_fan[6][2]    = { 3,1, 1,3, 2,3, 3,2, 1,2, 2,1 };	// Base三つ巴
 
 const WORD* cpt1_rep[2]	 = { L"成功＼(^o^)／",L"失敗（´Д`）" };
 const WORD* cpt1_item[2] = { L"成功 :",L"失敗 :" };
@@ -1286,15 +1286,13 @@ fc_Step3()
 }
 /**----------------------------------------------------------------------------
 ＠ 抜穴ノードの検出 */
-char		// <R>状態( 0:一掃 1:ＲＧ連鎖ガード変更 2:検出 )
+char		// <R>状態( 0:一掃 1:ＲＧガード迂回 2:検出 )
 fc_Step4()
 /*
 	結界ルート上の抜穴ノード spz_jack を検出する。
-	もし抜穴ノードが減色ノードの連鎖ルート経由点でない場合は、
-	ＲＧガードが存在している可能性がある。
-	よってその場合は、ＲＧガードで結界ルートを拡張する。
-	ただし、結界ルートの前後エリアをＲＧガードが取り囲んでいない場合や、
-	ＲＧガードのルート変更が縮小してしまう場合は抜穴ノードとして扱う。
+	もし抜穴ノードが減色ノードの連鎖ルート経由点でない場合は、ＲＧガードが存在している可能性がある。
+	よってその場合は、ＲＧガードで結界ルートを迂回する。
+	ただし、結界ルートの前後エリアをＲＧガードが取り囲んでいない場合は、抜穴ノードとして扱う。
 	抜穴ノードが検出されたら結界ルートのエリア情報 area[1] をセットする。
 ----------------------------------------------------------------------------**/
 {
@@ -1311,16 +1309,12 @@ fc_Step4()
 		return( 0 );
 	}
 
-	/* ＲＧ連鎖ガード拡張の可能性（抜穴ノードＹが内陸の場合のみ実施） */
-	if ( apz_node->mc1_area[0] == 0 ) {
+	/* 減色ノードからのＢＹ連鎖フラグセット */
+	fv_SwapFlg(spz_base,3);
+	fv_CutBranch(spz_base);
 
-		/* 減色ノードからのＢＹ連鎖フラグセット */
-		fv_SwapFlg(spz_base,3);
-		fv_CutBranch(spz_base);
-
-		/* ＢＹ連鎖の経由ノードでない場合はＲＧ連鎖ガード拡張を試行 */
-		if ( apz_node->mc_swap != 4 && fc_GardChg(apz_node) ) return( 1 );
-	}
+	/* ＢＹ連鎖の経由ノードでない場合はＲＧガード迂回を試行 */
+	if ( apz_node->mc_swap != 4 && fc_GardChg(apz_node) ) return( 1 );
 
 	/* 抜穴ノードの確定 */
 	spz_jack = apz_node;
@@ -1360,8 +1354,7 @@ fc_Step5()
 void
 fv_Step6()
 /*
-	減色ノードＢに対して、B - (R,G)(G,Y)(Y,R)(G,R)(Y,G)(R,Y)の６通りの三つ巴スワップを実施する。
-	撹拌効率を高めるため、同一の色セットの正逆回転を連続させないように実施する。
+	減色ノードＢに対して、B - (Y,R)(R,Y)(G,Y)(Y,G)(R,G)(R,G)の６通りの三つ巴スワップを実施する。
 	実施するスワップは、ルート変更不可に達した抜穴ノードが持つ三つ巴スワップ番号(mc_fan)で制御する。
 	スワップ番号は、実施後に更新されローテーションで繰り返される。
 ----------------------------------------------------------------------------**/
@@ -1498,19 +1491,19 @@ fc_JackFix()
 	return( 1 );
 }
 /**----------------------------------------------------------------------------
-＠ ＲＧ連鎖ガード拡張 */
+＠ ＲＧガード迂回 */
 char			// 変更状況( 0:無 1:有 )
 fc_GardChg(
 T_node* apz_jack)	// <I>基点となる抜穴ノード
 /*
 	与えられた接岸ルート上の抜穴ノードＹが、減色ノードＢからのＢＹ連鎖帰着ルートの経由ノードでない場合、
 	この抜穴ノードはＲＧ連鎖ガードで囲まれている可能性がある。
-	前方エリアは、まだ未処理のＹが残っているため必ずしもＲＧ連鎖ガードが対象のＹを取り囲んでいるとは限らない。
+	前方エリアは、まだ未処理のＹが残っているため必ずしもＲＧガードが対象のＹを取り囲んでいるとは限らない。
 	対して結界ルート後方はＲＧ化を終えているため、このチェックは後方から前方に至るＲＧスワップ試行で行う。
 	もし取り囲まれている、つまり後方エリアのＲＧノードの連鎖が前方エリアのＲＧに到達していれば、
-	このＲＧ連鎖ガードで結界ルートを変更し、対象のＹノードを結界の中に取り込む。
-	もし取り囲まれていない場合は、ＲＧ連鎖ガード拡張は実施せずに返却し、通常の抜穴ノードとして扱う。
-	なお、ルート変更の際に縮小を禁止するのは、通常のルート変更と同様である。
+	このＲＧガードで結界ルートを変更し、対象のＹノードを結界の中に取り込む。
+	もし取り囲まれていない場合は、ＲＧガード迂回は実施せずに返却し、通常の抜穴ノードとして扱う。
+	なおＲＧガード迂回は、通常のルート変更と異なり縮小を許容する。
 ----------------------------------------------------------------------------**/
 {
 	T_node* apz_node;
@@ -1518,7 +1511,7 @@ T_node* apz_jack)	// <I>基点となる抜穴ノード
 	/* 抜穴ノードの後方からのＲＧ試行スワップ */
 	fv_SwapFlg(apz_jack->mpz_way0,3-apz_jack->mpz_way0->mc_col);
 
-	/* 前方帰着点が存在しない場合はダイレクト減色処理 */
+	/* 前方帰着点が存在しない場合はＲＧガード迂回不可 */
 	for ( apz_node=apz_jack; apz_node; apz_node=apz_node->mpz_way1 ) if ( apz_node->mc_swap ) break;
 	if ( apz_node == NULL ) return( 0 );
 
@@ -1529,10 +1522,9 @@ T_node* apz_jack)	// <I>基点となる抜穴ノード
 	for ( apz_node=apz_jack; apz_node; apz_node=apz_node->mpz_way1 ) apz_node->mc1_area[1] = -1;
 	for ( apz_node=apz_jack; apz_node; apz_node=apz_node->mpz_way0 ) apz_node->mc1_area[1] =  1;
 
-	/* ＲＧルート変更 */
-	if ( fc_RouteChg(apz_jack) ) return( 1 );
-
-	return( 0 );
+	/* ＲＧガードのルート変更 */
+	fc_RouteChg(apz_jack);
+	return( 1 );
 }
 /**----------------------------------------------------------------------------
 ＠ ルート変更 */
@@ -1547,8 +1539,11 @@ T_node* apz_jack)	// <I>基点となる抜穴ノード
 	ルート変更は、結界ライン前方から後方に向けて探査する。
 	遮断帰着ルート上のノードをapz_newとし、apz_pinとapz_newを新ルートとして採用する。
 	現結界ルートに沿っている間は、ポインタを変更せずにそのまま進行する。
-	現結界ルートから離脱した際にルート変更の拡大／縮小を判断し、
-	縮小する場合は何も処理せずに返却する。
+	現結界ルートから離脱した際にルート変更の拡大／縮小を判断し、縮小する場合は以下の処理を行う。
+		＜ＲＧガード迂回の場合＞
+			縮小を許容して迂回ルートに変更する。
+		＜通常ルート変更の場合＞
+			ルート変更は行わず返却する。
 	新ルートのトレースは、まずmpz_way1だけを更新し、後処理でmpz_way0を付与する。
 		- 現結界ルートに沿っている場合は差替えない
 		- 現結界ルート前方エリアを横切る場合は差替えない
@@ -1597,23 +1592,27 @@ T_node* apz_jack)	// <I>基点となる抜穴ノード
 	/* 最終ノードのライン抽出 */
 	for ( apz_line=apz_pin->mpz_line; apz_line; apz_line=apz_line->mpz_next ) if ( apz_line->mpz_node == apz_arm ) break;
 
-	/* ルートの拡大縮小判定 */
-	apz_way0 = ( apz_pin == spz_way ? spz_base : apz_pin->mpz_way0 );
-	apz_way1 = ( apz_pin == spz_waz ? spz_base : apz_pin->mpz_way1 );
-	while( 1 ) {
-		apz_line = apz_line->mpz1_spin[1];
-		apz_new = apz_line->mpz_node;
-		if ( apz_new == apz_way0 || apz_new == apz_way1 ) break;
-	}
+	/* 通常ルート変更の場合 */
+	if ( apz_jack == spz_jack ) {
 
-	/* 縮小する場合は保持してある後進ポインタを使って前進ポインタをロールバック */
-	if ( apz_new == apz_way1 ) {
-		apz_pin = NULL;
-		for ( apz_node=spz_waz; apz_node; apz_node=apz_node->mpz_way0 ) {
-			apz_node->mpz_way1 = apz_pin;
-			apz_pin = apz_node;
+		/* ルートの拡大縮小判定 */
+		apz_way0 = ( apz_pin == spz_way ? spz_base : apz_pin->mpz_way0 );
+		apz_way1 = ( apz_pin == spz_waz ? spz_base : apz_pin->mpz_way1 );
+		while( 1 ) {
+			apz_line = apz_line->mpz1_spin[1];
+			apz_new = apz_line->mpz_node;
+			if ( apz_new == apz_way0 || apz_new == apz_way1 ) break;
 		}
-		return( 0 );
+
+		/* 縮小する場合は保持してある後進ポインタを使って前進ポインタをロールバック */
+		if ( apz_jack == spz_jack && apz_new == apz_way1 ) {
+			apz_pin = NULL;
+			for ( apz_node=spz_waz; apz_node; apz_node=apz_node->mpz_way0 ) {
+				apz_node->mpz_way1 = apz_pin;
+				apz_pin = apz_node;
+			}
+			return( 0 );
+		}
 	}
 
 	/* 新しい後進ポインタを付与 */
@@ -1688,7 +1687,7 @@ T_node* apz_prim)	// <I>枝刈判定ノード
 		apz_pin = spz_jack;
 		apz_arm = ( spz_jack == spz_way ? spz_base : spz_jack->mpz_way0 );
 	}
-	/* ＲＧ連鎖ルート */
+	/* ＲＧガード迂回 */
 	else {
 		/* 近接帰着点の検索 */
 		for ( apz_pin=apz_prim; apz_pin; apz_pin=apz_pin->mpz_way0 ) if ( apz_pin->mc_swap ) break;	// 後方の近接帰着点を開始点として採用
