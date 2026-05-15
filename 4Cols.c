@@ -1239,11 +1239,11 @@ fc_Step3()
 			fv_SwapMsk(cc3_col[m][n][0],4);			// Ｂ帰着抑止のマスク処理（接岸ライン後方）
 			fv_BaseGard(4,m+1,cc3_col[m][n][0]);		// Ｂ遮断スワップ
 			if ( spz_base->mc_col != 4 ) return( 0 );	// ダイレクト減色発生
-			if ( fc_BaseFix(m+1) ) return( 1 );		// Ｂ遮断による減色確認
+			if ( fc_BaseFix(m+1) ) return( 0 );		// Ｂ遮断による減色確認
 
 			fv_CutBranch(spz_base);				// 枝刈
 			fv_BaseGard(m+1,4,cc3_col[m][n][1]);		// Ａ遮断スワップ
-			if ( fc_BaseFix(m+1) ) return( 1 );		// Ａ遮断による減色確認
+			if ( fc_BaseFix(m+1) ) return( 0 );		// Ａ遮断による減色確認
 
 		}
 	}
