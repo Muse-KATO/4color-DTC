@@ -131,7 +131,7 @@ static char sc_step = 0;		// 処理ステップ(-1,0～)
 static char sc_phase = -1;		// 処理フェーズ( -1:起動直後 0:ノーマル 1:バッチ中 2:バッチ処理時間 )
 
 const char cc3_col[3][2][2] = { 2,3, 3,2, 3,1, 1,3, 1,2, 2,1 };	// Baseスワップ
-const char cc2_fan[6][2]    = { 3,1, 1,3, 2,3, 3,2, 1,2, 2,1 };	// Base三つ巴
+const char cc2_fan[6][2]    = { 1,2, 2,1, 2,3, 3,2, 3,1, 1,3 };	// Base三つ巴
 
 const WORD* cpt1_rep[2]	 = { L"成功＼(^o^)／",L"失敗（´Д`）" };
 const WORD* cpt1_item[2] = { L"成功 :",L"失敗 :" };
