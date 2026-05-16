@@ -20,7 +20,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
   * 確率的挙動をゼロ化。Exit NodeとThree-Way Swapでデッドロックを論理回避。
 
 * **1M+ Maps Verified (100万件超の検証実績)**
-  * Passed strict automated batch testing of over 1,002,000 complex planar maps.
+  * Passed strict automated batch testing of over 1,000,000 complex planar maps.
   * 100万件＋2000件の複雑な巨大平面グラフによる自動バッチテストを完全撃破。
 
 * **100% Reproducible (高い再現性・オープンソース化)**
