@@ -19,8 +19,8 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
   - 確率的な挙動を完全に排除して $O(N^{1.7})$ の計算量を保証し、Exit NodeやThree-Way Swapを用いて彩色デッドロックを論理的に回避します。
 
 - **High-Performance Verification (高パフォーマンス / 100万件超の実証実績)**
-  - Proven stable and robust through automated batch testing of over 1,002,000 massive, complex planar maps without a single deadlock.
-  - 100万件＋2000件の大規模かつ複雑な平面グラフによる自動バッチテストを完全撃破し、デッドロックゼロの圧倒的な安定性を実証済みです。
+  - Proven stable and robust through automated batch testing of over 1,000,000 massive, complex planar maps without a single deadlock.
+  - 100万件の大規模かつ複雑な平面グラフによる自動バッチテストを完全撃破し、デッドロックゼロの圧倒的な安定性を実証済みです。
 
 - **Highly Reproducible (極めて高い再現性 / オープンソース実証)**
   - Provides fully reproducible C source code and verification software (`4Cols.exe`) constructed precisely upon the manuscript's formulations.
