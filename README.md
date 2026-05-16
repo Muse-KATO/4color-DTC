@@ -7,7 +7,7 @@ This repository contains the official implementation of the paper:
 
 This project introduces a novel algorithm that solves the Four-Color Map Theorem purely through logical sequences without relying on pre-defined catalogs. By utilizing **Exit Nodes** and **Three-Way Swap** sequences, it achieves deterministic coloring with an efficiency of $O(N^{1.7})$.
 
-本プロジェクトは、平面グラフの四色問題を、カタログ（静的なパターン集）に依存せず、論理的なシーケンスのみで決定論的に解決する新しいアルゴリズムを提供します。
+本プロジェクトは平面グラフの四色問題を、従来の可約構成カタログ（静的なパターン集）に一切依存せず、論理的なシーケンスのみで決定論的に解決する、新しいアルゴリズムを提供します。「抜穴ノード」や「三つ巴スワップ」といった動的トポロジーシーケンスを活用することで、最悪計算量 $O(N^{1.7})$ という高い処理効率での彩色を実現しています。
 
 ## Key Features / 主な特徴
 
