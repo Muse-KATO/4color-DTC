@@ -15,7 +15,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
   * Eliminates reducible catalogs; decides coloring purely via dynamic computation.
   * 可約構成カタログを一切排除し、純粋な動的トポロジー計算のみで彩色。
 
-* **Deterministic O(N^1.7) (決定論的・最悪計算量の保証)**
+* **Deterministic $O(N^{1.7})$ (決定論的・最悪計算量の保証)**
   * Eradicates probabilistic bypasses; solves deadlocks via Exit Nodes & Three-Way Swaps.
   * 確率的挙動をゼロ化。Exit NodeとThree-Way Swapでデッドロックを論理回避。
 
