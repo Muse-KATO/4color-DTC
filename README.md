@@ -17,7 +17,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
 
 * **Deterministic $O(N^{1.7})$ (決定論的・最悪計算量の保証)**
   * Eradicates probabilistic bypasses; solves deadlocks via Exit Nodes & Three-Way Swaps.
-  * 確率的挙動をゼロ化。Exit NodeとThree-Way Swapでデッドロックを論理回避。
+  * 確率的挙動をゼロ化。抜穴ノードと三つ巴スワップでデッドロックを論理回避。
 
 * **1M+ Maps Verified (100万件超の検証実績)**
   * Passed strict automated batch testing of over 1,000,000 complex planar maps.
