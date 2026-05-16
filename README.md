@@ -4,9 +4,9 @@ This repository contains the official implementation of the paper:
 **"Dynamic Topology Control: A Catalog-Free and Deterministic $O(N^{1.7})$ Four-Coloring Algorithm"** by Ichiro Kato.
 
 ## Overview / 概要 
-本プロジェクトは、平面グラフの四色問題を、カタログ（静的なパターン集）に依存せず、論理的なシーケンスのみで決定論的に解決する新しいアルゴリズムを提供します。
 
 This project introduces a novel algorithm that solves the Four-Color Map Theorem purely through logical sequences without relying on pre-defined catalogs. By utilizing **Exit Nodes** and **Three-Way Swap** sequences, it achieves deterministic coloring with an efficiency of $O(N^{1.7})$.
+本プロジェクトは、平面グラフの四色問題を、カタログ（静的なパターン集）に依存せず、論理的なシーケンスのみで決定論的に解決する新しいアルゴリズムを提供します。
 
 ### Key Features / 主な特徴
 
