@@ -11,7 +11,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
 
 ## Key Features / 主な特徴
 
-- **Catalog-Free (カタログフリー / 構成カタログの排除)**
+**Catalog-Free (カタログフリー / 構成カタログの排除)**
   - Decides coloring entirely through topological computation, eliminating the need for massive traditional reducible configuration catalogs.
   - 従来の膨大な可約構成カタログを一切排除し、純粋なトポロジー計算のみによって彩色を決定します。
 
