@@ -9,7 +9,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
 
 本プロジェクトは、平面グラフの四色問題を、カタログ（静的なパターン集）に依存せず、論理的なシーケンスのみで決定論的に解決する新しいアルゴリズムを提供します。
 
-### Key Features / 主な特徴
+## Key Features / 主な特徴
 
 - **Catalog-Free (カタログフリー / 構成カタログの排除)**
   - Decides coloring entirely through topological computation, eliminating the need for massive traditional reducible configuration catalogs.
