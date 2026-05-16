@@ -11,19 +11,19 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
 
 ## Key Features / 主な特徴
 
-* **Catalog-Free (カタログフリー)**
+* **Catalog-Free / カタログフリー**
   * Eliminates reducible catalogs; decides coloring purely via dynamic computation.
   * 可約構成カタログを一切排除し、純粋な動的トポロジー計算のみで彩色。
 
-* **Deterministic $O(N^{1.7})$ (決定論的・最悪計算量の保証)**
+* **Deterministic $O(N^{1.7})$ / 決定論的・最悪計算量の保証**
   * Eradicates probabilistic bypasses; solves deadlocks via Exit Nodes & Three-Way Swaps.
   * 確率的挙動をゼロ化。抜穴ノードと三つ巴スワップでデッドロックを論理回避。
 
-* **1M+ Maps Verified (100万件超の検証実績)**
+* **1M+ Maps Verified / 100万件超の検証実績**
   * Passed strict automated batch testing of over 1,000,000 complex planar maps.
   * 100万件＋2000件の複雑な巨大平面グラフによる自動バッチテストを完全撃破。
 
-* **100% Reproducible (高い再現性・オープンソース化)**
+* **100% Reproducible / 高い再現性・オープンソース化**
   * Provides complete C source code and verification software (`4Cols.exe`).
   * 論文に完全準拠したC言語ソースコードと検証ソフトをすべて公開。
 
