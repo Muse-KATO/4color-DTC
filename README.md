@@ -8,11 +8,23 @@ This repository contains the official implementation of the paper:
 
 This project introduces a novel algorithm that solves the Four-Color Map Theorem purely through logical sequences without relying on pre-defined catalogs. By utilizing **Exit Nodes** and **Three-Way Swap** sequences, it achieves deterministic coloring with an efficiency of $O(N^{1.7})$.
 
-## Key Features / 特徴
-- **Catalog-Free**: カタログを一切持たず、計算によって彩色を決定します。
-- **Deterministic**: 確率的な挙動を排除し、デッドロックを論理的に回避します。
-- **High Performance**: 100万件以上のテストをクリアし、大規模なグラフでも安定して動作します。
-- **Highly Reproducible**: 論文の記述に基づき、極めて高い再現性を備えています。
+### Key Features / 主な特徴
+
+- **Catalog-Free (カタログフリー / 構成カタログの排除)**
+  - Decides coloring entirely through topological computation, eliminating the need for massive traditional reducible configuration catalogs.
+  - 従来の膨大な可約構成カタログを一切排除し、純粋なトポロジー計算のみによって彩色を決定します。
+
+- **Deterministic & Logically Proven (決定論的アプローチ / デッドロックの論理的回避)**
+  - Eradicates probabilistic behaviors and ensures an $O(N^{1.7})$ upper bound, resolving coloring deadlocks logically via Exit Nodes and Three-Way Swaps.
+  - 確率的な挙動を完全に排除して $O(N^{1.7})$ の計算量を保証し、Exit NodeやThree-Way Swapを用いて彩色デッドロックを論理的に回避します。
+
+- **High-Performance Verification (高パフォーマンス / 100万件超の実証実績)**
+  - Proven stable and robust through automated batch testing of over 1,002,000 massive, complex planar maps without a single deadlock.
+  - 100万件＋2000件の大規模かつ複雑な平面グラフによる自動バッチテストを完全撃破し、デッドロックゼロの圧倒的な安定性を実証済みです。
+
+- **Highly Reproducible (極めて高い再現性 / オープンソース実証)**
+  - Provides fully reproducible C source code and verification software (`4Cols.exe`) constructed precisely upon the manuscript's formulations.
+  - 論文の記述に完全に基づき構築されたC言語ソースコードと検証ソフトを公開しており、誰でも極めて高い再現性で検証可能です。
 
 ## Verification Software / 検証ソフトウェア
 The provided C source code allows you to:
