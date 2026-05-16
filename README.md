@@ -16,7 +16,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
   
   従来の膨大な可約構成カタログを一切排除し、純粋なトポロジー計算のみによって彩色を決定します。
 
-- **Deterministic & Logically Proven (決定論的アプローチ / デッドロックの論理的回避)**
+- **Deterministic & Logically Proven (決定論的アプローチ / デッドロックの論理的回避)**  
   - Eradicates probabilistic behaviors and ensures an $O(N^{1.7})$ upper bound, resolving coloring deadlocks logically via Exit Nodes and Three-Way Swaps.
   - 確率的な挙動を完全に排除して $O(N^{1.7})$ の計算量を保証し、Exit NodeやThree-Way Swapを用いて彩色デッドロックを論理的に回避します。
 
