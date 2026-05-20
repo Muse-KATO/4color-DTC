@@ -140,7 +140,7 @@ const char cc2_fan[6][2]    = { 1,2, 2,1, 2,3, 3,2, 3,1, 1,3 };	// Base三つ巴
 
 const WORD* cpt1_rep[2]	 = { L"成功＼(^o^)／",L"失敗（´Д`）" };
 const WORD* cpt1_item[2] = { L"成功 :",L"失敗 :" };
-const WORD* cpt_ver	 = { L"四色問題 (V1.0)" };
+const WORD* cpt_ver	 = { L"四色問題 (v1.1)" };
 const WORD* cpt_cw	 = { L"(C) 2026 加藤 一郎" };
 const WORD ct1_col[] = L" RGYB*";
 
