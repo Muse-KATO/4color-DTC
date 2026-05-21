@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-	4Col.c
+	4Cols.c
 ******************************************************************************/
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib,  "gdi32.lib")
@@ -161,10 +161,14 @@ char		fc_Step4(void);
 void		fv_Step5(void);
 char		fc_Step6(void);
 
+void		fv_BaseGard(char,char,char);
+char		fc_BaseFix(char);
 char		fc_GardChg(T_node*);
 void		fv_CutBranch(T_node*);
 void		fv_RCbran(T_node*,T_node*);
 
+void		fv_SwapMsk(char,char);
+void		fv_RCmask(char,T_node*);
 void		fv_SwapFlg(T_node*,char);
 void		fv_RCflag(char,T_node*);
 void		fv_SwapExe(T_node*,char);
@@ -1173,9 +1177,17 @@ fc_Step3()
 /*
 	減色ノードの内陸への押込みを試みる。
 	もし失敗した場合は、前方エリアへのシフトを試みる。
-	それも失敗した場合は、結界ルートを生成する。
+	それも失敗した場合は、以下の帰着遮断を試みる。
+	帰着遮断はＢに対峙する３色の連鎖ルートに対して２系統遮断スワップを行う。
+	この２系統はスワップ色が排他的であるため、遮断効果が干渉しない。
+	各２系統遮断スワップは、遮断色を入替えて連続実行する。
+		ＢＲ連鎖ルート： ＢＧ＋ＲＹ (入替)→ ＢＹ＋ＲＧ
+		ＢＧ連鎖ルート： ＢＹ＋ＧＲ (入替)→ ＢＲ＋ＧＹ
+		ＢＹ連鎖ルート： ＢＲ＋ＹＧ (入替)→ ＢＧ＋ＹＲ
+	これらのすべての試行が失敗した場合は、結界ルートを生成する。
 ----------------------------------------------------------------------------**/
 {
+	int n,m;
 	char ac_col;
 	char ac_bow;
 	T_node* apz_node;
@@ -1207,6 +1219,28 @@ fc_Step3()
 	if ( ac_bow ) {
 		fv_SwapExe(spz_base,ac_bow);
 		return( 0 );
+	}
+
+	/* 連鎖色交代ループ */
+	for ( m=0; m<3; m++ ) {
+
+		/* 減色スワップによるフラグセット */
+		fv_SwapFlg(spz_base,m+1);
+
+		/* 遮断色入替ループ */
+		for ( n=0; n<2; n++ ) {
+
+			fv_CutBranch(spz_base);				// 枝刈
+			fv_SwapMsk(cc3_col[m][n][0],4);			// Ｂ帰着抑止のマスク処理（接岸ライン後方）
+			fv_BaseGard(4,m+1,cc3_col[m][n][0]);		// Ｂ遮断スワップ
+			if ( spz_base->mc_col != 4 ) return( 0 );	// ダイレクト減色発生
+			if ( fc_BaseFix(m+1) ) return( 0 );		// Ｂ遮断による減色確認
+
+			fv_CutBranch(spz_base);				// 枝刈
+			fv_BaseGard(m+1,4,cc3_col[m][n][1]);		// Ａ遮断スワップ
+			if ( fc_BaseFix(m+1) ) return( 0 );		// Ａ遮断による減色確認
+
+		}
 	}
 
 	/* 結界ルートの初期化 */
@@ -1242,6 +1276,7 @@ fc_Step3()
 	/* 抜穴ノードの初期化 */
 	sc_lock = 0;
 	spz_jack = NULL;
+
 	return( 1 );
 }
 /**----------------------------------------------------------------------------
@@ -1361,6 +1396,44 @@ fc_Step6()
 	/* 三国峠の復帰 */
 	fv_PutPass();
 
+	return( 1 );
+}
+/**----------------------------------------------------------------------------
+＠ 遮断スワップ */
+void
+fv_BaseGard(
+char ac_targ,	// <I>ターゲット色
+char ac_swap,	// <I>フラグ色
+char ac_gard)	// <I>遮断色
+/*
+	フラグ色のスワップフラグが立っているターゲット色のノードを遮断色でスワップする。
+----------------------------------------------------------------------------**/
+{
+	T_node* apz_node;
+
+	for ( apz_node=spz_node; apz_node; apz_node=apz_node->mpz_next ) {
+		if ( apz_node->mc_swap == ac_swap && apz_node->mc_col == ac_targ ) fv_SwapExe(apz_node,ac_gard);
+	}
+}
+/**----------------------------------------------------------------------------
+＠ 減色ノードの遮断 */
+char		// <R>状態( 0:失敗 1:成功 )
+fc_BaseFix(
+ac_col)		// <I>変更色
+/*
+	減色ノードから与えられた変更色でスワップを試行し、
+	接岸ライン後方エリアにＢが発生しない場合は、減色ノードを変更色で確定スワップする。
+	Ｂが発生する場合は、何もせずに失敗を返す。
+----------------------------------------------------------------------------**/
+{
+	T_node* apz_node;
+
+	/* スワップによる接岸ラインＢ帰着チェック */
+	fv_SwapFlg(spz_base,ac_col);
+	for ( apz_node=spz_qeen; apz_node!=spz_base; apz_node=apz_node->mpz1_sea[1] ) if ( apz_node->mc_swap == 4 ) return( 0 );
+
+	/* 確定スワップ */
+	fv_SwapExe(spz_base,ac_col);
 	return( 1 );
 }
 /**----------------------------------------------------------------------------
@@ -1612,6 +1685,65 @@ T_node* apz_arm)	// <I>周回探査起点ノード
 
 		/* 分岐の終了判定 */
 		if ( apz_line->mpz_node == apz_arm ) break;
+	}
+}
+/**----------------------------------------------------------------------------
+＠ スワップ選別 */
+void
+fv_SwapMsk(
+char ac_targ,		// <I>ターゲット色
+char ac_swap)		// <I>スワップ色
+/*
+	与えられた後方エリアに存在するターゲット色のノードに対し、
+	スワップ色で試行スワップを掛け、既にセットされているスワップフラグをクリアする。
+	例えば、Ｙをターゲット色、Ｂをスワップ色とするＹＢ遮断を実施する際、
+	本関数をコールする前にspz_baseからＹＲ試行スワップを行い、ＹＲ連鎖フラグを立てておく。
+	次に、本関数を(Ｙ,Ｂ)としてコールすると、接岸ライン後方エリアに存在するＹノードから
+	Ｂスワップ連鎖の調査が実施され、既にセットされているＹＲ連鎖のＹノードフラグがクリアされる。
+	これにより、残されたＹＲ連鎖フラグのＹでＢスワップを掛けても後方エリアにＢが到達しないことが保証される。
+----------------------------------------------------------------------------**/
+{
+	T_node* apz_node;
+	T_node* apz_exam;
+
+	/* スワップ組色セット */
+	sc1_swap[0] = ac_targ;
+	sc1_swap[1] = ac_swap;
+
+	/* 接岸ライン後方（減色ノードを含まず） */
+	for ( apz_node=spz_qeen; apz_node!=spz_base; apz_node=apz_node->mpz1_sea[1] ) {
+		if ( apz_node->mc_col != ac_targ ) continue;
+		for ( apz_exam=spz_node; apz_exam; apz_exam=apz_exam->mpz_next ) apz_exam->mc_done = 0;
+		fv_RCmask(0,apz_node);
+	}
+}
+/**----------------------------------------------------------------------------
+＠ スワップ選別の再帰処理 */
+void
+fv_RCmask(
+char ac_sw,		// <I>スワップ色フラグ(再帰起動コール時は０を指定)
+T_node* apz_node)	// <I>対象ノード
+/*
+	実際のノード色は変更せず、mc_doneでスワップ済みを管理しながら、
+	既にセットされているmc_swapをクリアしていく。
+	コール前に対象のmc_doneを全クリアしておく必要がある。
+	また、スワップ色はsc1_swap[0]および[1]にあらかじめセットしておく。
+----------------------------------------------------------------------------**/
+{
+	T_line* apz_line;
+
+	/* スワップ処理 */
+	ac_sw = 1 - ac_sw;
+	apz_node->mc_done = 1;
+	apz_node->mc_swap = 0;
+
+	/* 接続ラインで再帰呼び出し */
+	for ( apz_line=apz_node->mpz_line; apz_line; apz_line=apz_line->mpz_next ) {
+		if ( apz_line->mpz_node->mc_col != sc1_swap[ac_sw] ) continue;	// スワップ対象色ではないノード
+		if ( apz_line->mpz_node->mc_done ) continue;			// 別ルートでのスワップで処理済み
+
+		/* 再帰呼び出し */
+		fv_RCmask(ac_sw,apz_line->mpz_node);
 	}
 }
 /**----------------------------------------------------------------------------
