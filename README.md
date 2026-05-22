@@ -1,13 +1,13 @@
-# Dynamic Topology Control: A Catalog-Free and Deterministic $O(N^{1.7})$ Four-Coloring Algorithm
+# Dynamic Topology Control: A Catalog-Free and Deterministic $O(N^{1.6})$ Four-Coloring Algorithm
 
 This repository contains the official implementation of the paper:  
-**"Dynamic Topology Control: A Catalog-Free and Deterministic $O(N^{1.7})$ Four-Coloring Algorithm"** by Ichiro Kato.
+**"Dynamic Topology Control: A Catalog-Free and Deterministic $O(N^{1.6})$ Four-Coloring Algorithm"** by Ichiro Kato.
 
 ## Overview / 概要 
 
-This project introduces a novel algorithm that solves the Four-Color Map Theorem purely through logical sequences without relying on pre-defined catalogs. By utilizing **Exit Nodes** and **Three-Way Swap** sequences, it achieves deterministic coloring with an efficiency of $O(N^{1.7})$.
+This project introduces a novel algorithm that solves the Four-Color Map Theorem purely through logical sequences without relying on pre-defined catalogs. By utilizing **Exit Nodes** and **Three-Way Swap** sequences, it achieves deterministic coloring with an efficiency of $O(N^{1.6})$.
 
-本プロジェクトは平面グラフの四色問題を、従来の可約構成カタログ（静的なパターン集）に一切依存せず、論理的なシーケンスのみで決定論的に解決する、新しいアルゴリズムを提供します。「抜穴ノード」や「三つ巴スワップ」といった動的トポロジーシーケンスを活用することで、最悪計算量 $O(N^{1.7})$ という高い処理効率での彩色を実現しています。
+本プロジェクトは平面グラフの四色問題を、従来の可約構成カタログ（静的なパターン集）に一切依存せず、論理的なシーケンスのみで決定論的に解決する、新しいアルゴリズムを提供します。「抜穴ノード」や「三つ巴スワップ」といった動的トポロジーシーケンスを活用することで、最悪計算量 $O(N^{1.6})$ という高い処理効率での彩色を実現しています。
 
 ## Key Features / 主な特徴
 
@@ -15,7 +15,7 @@ This project introduces a novel algorithm that solves the Four-Color Map Theorem
   * Eliminates reducible catalogs; decides coloring purely via dynamic computation.
   * 可約構成カタログを一切排除し、純粋な動的トポロジー計算のみで彩色。
 
-* **Deterministic $O(N^{1.7})$ / 決定論的・最悪計算量の保証**
+* **Deterministic $O(N^{1.6})$ / 決定論的・最悪計算量の保証**
   * Eradicates probabilistic bypasses; solves deadlocks via Exit Nodes & Three-Way Swaps.
   * 確率的挙動をゼロ化。抜穴ノードと三つ巴スワップでデッドロックを論理回避。
 
