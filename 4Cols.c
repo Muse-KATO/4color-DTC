@@ -28,7 +28,7 @@
 #define D_Scale		(SHRT_MAX)		// 生成座標範囲
 #define D_MaxNode	(10000)			// 最大ノード数
 #define D_MaxMap	(1000000)		// 最大地図数
-#define D_TimeOut	(10000)			// タイムアウト(msec)
+#define D_Limit		(21)			// 三つ巴サイクル上限
 
 /* 演算 */
 #define di_Round(x)	((int)((x)+((x)<0.0?-0.5:0.5)))	// 四捨五入
@@ -139,7 +139,7 @@ const char cc2_fan[6][2]    = { 1,2, 2,1, 2,3, 3,2, 3,1, 1,3 };	// Base三つ巴
 
 const WORD* cpt1_rep[2]	 = { L"成功＼(^o^)／",L"失敗（´Д`）" };
 const WORD* cpt1_item[2] = { L"成功 :",L"失敗 :" };
-const WORD* cpt_ver	 = { L"四色問題 (v1.2)" };
+const WORD* cpt_ver	 = { L"四色問題 (v1.3)" };
 const WORD* cpt_cw	 = { L"(C) 2026 加藤 一郎" };
 const WORD ct1_col[] = L" RGYB*";
 
@@ -158,7 +158,7 @@ char		fc_Step1(void);
 char		fc_Step2(void);
 char		fc_Step3(void);
 char		fc_Step4(void);
-void		fv_Step5(void);
+char		fc_Step5(void);
 char		fc_Step6(void);
 
 void		fv_BaseGard(char,char,char);
@@ -206,12 +206,6 @@ void		fv_IniLoad(void);
 void		fv_IniSave(void);
 void		fv_Export(void);
 int		fi_CmpID(T_node**,T_node**);
-
-void		fv_ClipExe();
-void		fv_ClipSet();
-void		fv_Pick();
-void		fv_Head(char,WORD*);
-void		fv_Halt(WORD*,...);
 
 /**----------------------------------------------------------------------------
 ＠ メインルーチン */
@@ -807,25 +801,14 @@ char ac_type)	// <I>着色刻みタイプ( 0:逐次 1:一括 )
 ----------------------------------------------------------------------------**/
 {
 	short as_id;
-	DWORD ah_tim0;
-	DWORD ah_tim1;
 	WORD at1_txt[64];
 
 	/* 着色開始チェック */
 	if ( spz_node == NULL || sc_step < 0 ) return( 0 );
 
-	/* タイムアウト基点セット */
-	ah_tim0 = timeGetTime();
-
 	/* ダミーループ */
 	as_id = 0;
 	while( 1 ) {
-
-		/* 一括の場合のみタイムアウトチェック */
-		if ( ac_type && sc_step < 6 ) {
-			ah_tim1 = timeGetTime();
-			if ( ah_tim1 - ah_tim0 > D_TimeOut ) sc_step = 6;
-		}
 
 		/* 基点三角ネット */
 		if ( sc_step == 0 ) {
@@ -871,8 +854,10 @@ char ac_type)	// <I>着色刻みタイプ( 0:逐次 1:一括 )
 		else
 		/* 三つ巴スワップ */
 		if ( sc_step == 5 ) {
-			fv_Step5();
-			sc_step = 2;
+			switch( fc_Step5() ) {
+			    case 0: sc_step = 2; break;
+			    case 1: sc_step = 6; break;
+			}
 		}
 		else
 		/* 三国峠の着色復帰 */
@@ -1289,7 +1274,7 @@ fc_Step4()
 	よってその場合は、ＲＧガードで結界ルートを迂回する。
 	ただし、結界ルートの前後エリアをＲＧガードが取り囲んでいない場合は、抜穴ノードとして扱う。
 	抜穴ノードを検出したら前後のノード色を対色で同色化しておき、封印色でスワップ試行する。
-	結界ルート上に帰着しない場合は、封印成功としてスワップを確定する。
+	結界ルート後方エリアに帰着しない場合は、封印成功としてスワップを確定する。
 	帰着する場合は、三つ巴スワップへ移行する。
 ----------------------------------------------------------------------------**/
 {
@@ -1330,9 +1315,9 @@ fc_Step4()
 		}
 	}
 
-	/* スワップによる結界ルート帰着チェック */
+	/* 結界ルート後方エリア帰着チェック */
 	fv_SwapFlg(spz_jack,ac_gard);
-	for ( apz_node=spz_way; apz_node; apz_node=apz_node->mpz_way1 ) {
+	for ( apz_node=spz_jack; apz_node; apz_node=apz_node->mpz_way0 ) {
 
 		/* 三つ巴スワップへ移行 */
 		if ( apz_node->mc_swap == 3 ) {
@@ -1347,21 +1332,29 @@ fc_Step4()
 }
 /**----------------------------------------------------------------------------
 ＠ 三つ巴スワップ */
-void
-fv_Step5()
+char		// <R>パターン到達状況( 0:継続 1:上限 )
+fc_Step5()
 /*
 	減色ノードＢに対して、B - (R,G)(G,R)(G,Y)(Y,G)(Y,R)(R,Y)の６通りの三つ巴スワップを実施する。
 	実施するスワップは、ルート変更不可に達した抜穴ノードが持つ三つ巴スワップ番号(mc_fan)で制御する。
 	スワップ番号は、実施後に更新されローテーションで繰り返される。
+	ローテーションが三つ巴サイクル上限に達した場合は、処理を停止する。
 ----------------------------------------------------------------------------**/
 {
+	char ac_fan;
+
+	/* パターン番号 */
+	ac_fan = spz_jack->mc_fan%6;
+
 	/* 三つ巴 */
-	fv_SwapExe(spz_base,cc2_fan[spz_jack->mc_fan][0]);
-	fv_SwapExe(spz_base,cc2_fan[spz_jack->mc_fan][1]);
+	fv_SwapExe(spz_base,cc2_fan[ac_fan][0]);
+	fv_SwapExe(spz_base,cc2_fan[ac_fan][1]);
 
 	/* 更新 */
 	spz_jack->mc_fan++;
-	if ( spz_jack->mc_fan == 6 ) spz_jack->mc_fan = 0;
+	if ( spz_jack->mc_fan >= 6*D_Limit ) return( 1 );
+
+	return( 0 );
 }
 /**----------------------------------------------------------------------------
 ＠ 三国峠の着色復帰 */
@@ -2233,7 +2226,6 @@ fv_Batch()
 	int ai1_rep[2];
 	int ai_map;
 	short as_err;
-	long al_fpos;
 	DWORD ah_org;
 	DWORD ah_code;
 	WORD at1_dir[32];
@@ -2301,7 +2293,6 @@ fv_Batch()
 
 	/* バッチループ */
 	as_err = 0;
-	al_fpos = 0;
 	ai1_rep[0] = 0;
 	ai1_rep[1] = 0;
 	ah_code = ah_org;
@@ -2310,11 +2301,6 @@ fv_Batch()
 		/* 乱数コード更新 */
 		srand( (DWORD)ah_code );
 		wsprintf(st1_code,L"%08x",ah_code);
-
-		/* ログ出力 */
-		fseek(apx_file,al_fpos,SEEK_SET);
-		fwprintf(apx_file,L"%08x(%d)	;最終地図",ah_code,ai_cnt);
-		fflush(apx_file);
 
 		/* 実行 */
 		sc_step = 0;
@@ -2333,16 +2319,8 @@ fv_Batch()
 		InvalidateRect(sx_disp,&sz1_rect[m],FALSE);
 		UpdateWindow(sx_disp);
 
-		/* 色干渉ノードＩＤ付加 */
-		if ( as_err ) {
-			fseek(apx_file,al_fpos,SEEK_SET);
-			fwprintf(apx_file,L"%08x(%d)	;Error(%d)\n",ah_code,ai_cnt,as_err);
-			al_fpos = ftell(apx_file);
-		}
-		else {
-			fwprintf(apx_file,L"\n");
-		}
-		fflush(apx_file);
+		/* エラー出力 */
+		if ( as_err ) fwprintf(apx_file,L"%08x(%d)\t;Error(%d)\n",ah_code,ai_cnt,as_err);
 
 		/* 地図クリア */
 		fv_FreeMap();
@@ -2359,7 +2337,8 @@ fv_Batch()
 	wsprintf(st1_tim2,L"着色 : %8d (msec)",s2);
 
 	/* 結果の出力 */
-	fwprintf(apx_file,L"%08x(%d)	;初期地図\n",ah_org,ai_cnt);
+	fwprintf(apx_file,L"%08x(%d)\t;初期地図\n",ah_org   ,ai_cnt);
+	fwprintf(apx_file,L"%08x(%d)\t;最終地図\n",ah_code-1,ai_cnt);
 	fwprintf(apx_file,L"--------------------------\n");
 	fwprintf(apx_file,L"ノード数 : %d\n",ai_cnt);
 	fwprintf(apx_file,L"地図数 : %d\n",ai_map);
